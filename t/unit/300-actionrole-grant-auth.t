@@ -158,7 +158,7 @@ my $code =
 }
 
 # try a grant with an incorrect client id
-# should redirect with access_denied
+# should redirect with unauthorized_client
 {
   my $uri = URI->new('/grant');
   $uri->query_form(
