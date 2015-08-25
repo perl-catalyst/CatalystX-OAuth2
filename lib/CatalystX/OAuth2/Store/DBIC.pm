@@ -59,8 +59,8 @@ sub create_client_code {
 sub find_client_code {
   my ( $self, $code, $id ) = @_;
   return $id
-    ? $self->_code_rs->find($code)
-    : $self->_code_rs($id)->find($code);
+    ? $self->_code_rs($id)->find($code)
+    : $self->_code_rs->find($code);
 }
 
 sub activate_client_code {

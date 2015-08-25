@@ -124,7 +124,7 @@ my $code =
   my $uri = URI->new('/grant');
   $uri->query_form(
     { response_type => 'code',
-      client_id     => 1,
+      client_id     => $code->client_id,
       state         => 'bar',
       redirect_uri  => '/client/foo',
       code          => $code->as_string,
@@ -157,13 +157,52 @@ my $code =
   is( $res->status,   302 );
 }
 
+# try a grant with an incorrect client id
+# should redirect with access_denied
+{
+  my $uri = URI->new('/grant');
+  $uri->query_form(
+    { response_type => 'code',
+      client_id     => 9999999,
+      state         => 'bar',
+      redirect_uri  => '/client/foo',
+      code          => $code->as_string,
+      approved      => 0
+    }
+  );
+  $code->discard_changes;
+  ok(!$code->is_active);
+  my $c = $mock->( GET $uri );
+  $c->dispatch;
+  is_deeply( $c->error, [], 'dispatches to request action cleanly' );
+  is( $c->res->body, undef, q{doesn't produce warning} );
+  ok( $c->req->can('oauth2'),
+    "installs oauth2 accessors if request is valid" );
+  ok( Moose::Util::does_role( $c->req, 'CatalystX::OAuth2::Request' ) );
+  my $res    = $c->res;
+  isa_ok( my $oauth2 = $c->req->oauth2,
+    'CatalystX::OAuth2::Request::GrantAuth' );
+  my $redirect = $c->req->oauth2->next_action_uri( $c->controller, $c );
+  is_deeply(
+    { $redirect->query_form },
+    { error => 'unauthorized_client',
+      error_description =>
+        'the client identified by 9999999 is not authorized to access this resource'
+    },
+    "deny access to incorrect clients"
+  );
+  is( $res->location, $redirect );
+  is( $res->status,   302 );
+}
+
+
 # try a grant with a valid code and approval
 # should activate code and redirect
 {
   my $uri = URI->new('/grant');
   $uri->query_form(
     { response_type  => 'code',
-      client_id      => 1,
+      client_id      => $code->client_id,
       state          => 'bar',
       redirect_uri   => '/client/foo',
       code           => $code->as_string,
