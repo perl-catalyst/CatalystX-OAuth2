@@ -33,7 +33,6 @@ my $code =
     "installs oauth2 accessors if request is valid" );
   ok( Moose::Util::does_role( $c->req, 'CatalystX::OAuth2::Request' ) );
   my $res    = $c->res;
-  my $client = $c->controller->store->find_client(1);
   isa_ok( my $oauth2 = $c->req->oauth2,
     'CatalystX::OAuth2::Request::GrantAuth' );
   my $redirect = $c->req->oauth2->next_action_uri( $c->controller, $c );
@@ -73,7 +72,6 @@ my $code =
     "installs oauth2 accessors if request is valid" );
   ok( Moose::Util::does_role( $c->req, 'CatalystX::OAuth2::Request' ) );
   my $res    = $c->res;
-  my $client = $c->controller->store->find_client(1);
   isa_ok( my $oauth2 = $c->req->oauth2,
     'CatalystX::OAuth2::Request::GrantAuth' );
   my $redirect = $c->req->oauth2->next_action_uri( $c->controller, $c );
@@ -111,7 +109,6 @@ my $code =
     "installs oauth2 accessors if request is valid" );
   ok( Moose::Util::does_role( $c->req, 'CatalystX::OAuth2::Request' ) );
   my $res    = $c->res;
-  my $client = $c->controller->store->find_client(1);
   isa_ok( my $oauth2 = $c->req->oauth2,
     'CatalystX::OAuth2::Request::GrantAuth' );
   ok( !$res->location );
@@ -141,7 +138,6 @@ my $code =
     "installs oauth2 accessors if request is valid" );
   ok( Moose::Util::does_role( $c->req, 'CatalystX::OAuth2::Request' ) );
   my $res    = $c->res;
-  my $client = $c->controller->store->find_client(1);
   isa_ok( my $oauth2 = $c->req->oauth2,
     'CatalystX::OAuth2::Request::GrantAuth' );
   my $redirect = $c->req->oauth2->next_action_uri( $c->controller, $c );
@@ -219,7 +215,6 @@ my $code =
     "installs oauth2 accessors if request is valid" );
   ok( Moose::Util::does_role( $c->req, 'CatalystX::OAuth2::Request' ) );
   my $res    = $c->res;
-  my $client = $c->controller->store->find_client(1);
   isa_ok( my $oauth2 = $c->req->oauth2,
     'CatalystX::OAuth2::Request::GrantAuth' );
   my $redirect = $c->req->oauth2->next_action_uri( $c->controller, $c );
