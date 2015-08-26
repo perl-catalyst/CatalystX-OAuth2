@@ -18,6 +18,12 @@ has $_ => (
 around create_action => sub {
   my $orig   = shift;
   my $self   = shift;
+  my $name   = {@_}->{name};
+  if ( $name =~ /(request|grant)/ ) {
+    my $action_config = $self->config->{action} && $self->config->{action}{$name};
+    push @_, (%$action_config) if $action_config;
+  }
+
   my $action = $self->$orig(@_);
   if (
     Moose::Util::does_role(
