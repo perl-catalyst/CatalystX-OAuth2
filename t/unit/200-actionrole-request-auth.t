@@ -65,6 +65,33 @@ use Catalyst::Test 'AuthServer';
   is( $res->status,                     302 );
 }
 
+# Fail by not supplying a client_secret
+{
+  my $uri   = URI->new('/secret/request');
+  my $query = {
+    response_type => 'code',
+    client_id     => 1,
+    state         => 'bar',
+    redirect_uri  => 'http://localhost/auth',
+  };
+  $uri->query_form($query);
+  my $c = $mock->( GET $uri );
+  $c->dispatch;
+  is_deeply( $c->error, [], 'dispatches to request action cleanly' );
+  is( $c->res->body, undef, q{doesn't produce warning} );
+  ok( $c->req->can('oauth2'),
+    "installs oauth2 accessors if request is valid" );
+  ok( Moose::Util::does_role( $c->req, 'CatalystX::OAuth2::Request' ) );
+  my $res    = $c->res;
+  ok( my $redirect = $c->req->oauth2->next_action_uri( $c->controller, $c ) );
+  is( $res->location, $redirect, 'redirects to the correct action' );
+  is_deeply( { $redirect->query_form }, {
+    error => 'unauthorized_client',
+	error_description => 'the client identified by 1 is not authorized to access this resource'
+    } )
+    or diag( Data::Dump::dump( $redirect->query_form ) );
+}
+
 {
   my $uri   = URI->new('/secret/request');
   my $query = {
@@ -74,7 +101,6 @@ use Catalyst::Test 'AuthServer';
     redirect_uri  => 'http://localhost/auth',
     client_secret => 'foosecret'
   };
-
   $uri->query_form($query);
   my ($res2, $c) = ctx_request($uri);
   $c->dispatch;
